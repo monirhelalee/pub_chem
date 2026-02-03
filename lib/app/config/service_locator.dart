@@ -1,0 +1,9 @@
+import 'package:get_it/get_it.dart';
+import 'package:pub_chem/splash/view/bloc/splash_bloc.dart';
+
+final GetIt sl = GetIt.instance;
+
+Future<void> setupServiceLocator() async {
+  // Blocs
+  sl.registerFactory(SplashBloc.new);
+}
