@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pub_chem/app/router/app_routes.dart';
 import 'package:pub_chem/splash/view/bloc/splash_bloc.dart';
 import 'package:pub_chem/splash/view/bloc/splash_event.dart';
 import 'package:pub_chem/splash/view/bloc/splash_state.dart';
@@ -23,7 +25,9 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
-          if (state is SplashFinished) {}
+          if (state is SplashFinished) {
+            context.go(AppRoutes.navbar);
+          }
         },
         child: _body(),
       ),
@@ -33,21 +37,20 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget _body() {
     return const Center(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: .min,
+        spacing: 24,
         children: [
           Icon(
             Icons.science_outlined,
-            size: 150,
+            size: 120,
           ),
-          SizedBox(height: 16),
           Text(
             'PubChem',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: .bold,
               fontSize: 36,
             ),
           ),
-          SizedBox(height: 24),
           CircularProgressIndicator(),
         ],
       ),
