@@ -1,0 +1,36 @@
+class Constants {
+  Constants._();
+
+  static const List<String> featuredCompounds = [
+    'Aspirin',
+    'Caffeine',
+    'Glucose',
+    'Ibuprofen',
+    'Paracetamol',
+    'Ethanol',
+    'Methanol',
+    'Benzene',
+    'Toluene',
+    'Acetone',
+    'Urea',
+    'Citric Acid',
+    'Ascorbic Acid',
+    'Sodium Chloride',
+    'Potassium Chloride',
+    'Calcium Carbonate',
+    'Ammonia',
+    'Hydrogen Peroxide',
+    'Sulfuric Acid',
+    'Nitric Acid',
+    'Acetic Acid',
+    'Formaldehyde',
+    'Cholesterol',
+    'Lactose',
+    'Sucrose',
+    'Fructose',
+    'Glycine',
+    'Alanine',
+    'Creatine',
+    'Dopamine',
+  ];
+}
