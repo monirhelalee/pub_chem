@@ -21,8 +21,7 @@ class ThemeCubit extends Cubit<AppThemeMode> {
           themeIndex < AppThemeMode.values.length) {
         emit(AppThemeMode.values[themeIndex]);
       }
-    } catch (e) {
-      // If loading fails, use system default
+    } on Exception catch (e) {
       emit(AppThemeMode.system);
     }
   }
@@ -32,8 +31,7 @@ class ThemeCubit extends Cubit<AppThemeMode> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_themeKey, theme.index);
       emit(theme);
-    } catch (e) {
-      // If saving fails, still update the state
+    } on Exception catch (e) {
       emit(theme);
     }
   }

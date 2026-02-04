@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/router/app_router.dart';
-import 'package:pub_chem/app/view/theme/config/app_theme.dart';
+import 'package:pub_chem/app/view/theme/app_theme.dart';
 import 'package:pub_chem/app/view/theme/cubit/theme_cubit.dart';
 import 'package:pub_chem/app/view/theme/models/app_theme_mode.dart';
 import 'package:pub_chem/l10n/l10n.dart';
