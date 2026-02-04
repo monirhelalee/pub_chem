@@ -1,0 +1,7 @@
+{
+    "@@locale": "bn",
+    "counterAppBarTitle": "কাউন্টার",
+    "@counterAppBarTitle": {
+        "description": "কাউন্টার পৃষ্ঠার AppBar-এ প্রদর্শিত পাঠ্য"
+    }
+}
