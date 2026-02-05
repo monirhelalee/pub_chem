@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pub_chem/app/config/env.dart';
+import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
@@ -9,6 +10,9 @@ import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart';
 import 'package:pub_chem/l10n/l10n.dart';
+import 'package:pub_chem/search/data/services/recent_search_service.dart';
+import 'package:pub_chem/search/domain/entities/recent_search.dart';
+import 'package:pub_chem/search/utils/time_ago_utils.dart';
 import 'package:pub_chem/search/view/widgets/search_compound_loading_widget.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -20,6 +24,34 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final RecentSearchService _recentSearchService = sl<RecentSearchService>();
+  List<RecentSearch> _recentSearches = [];
+  String? _currentSearchText;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentSearches();
+  }
+
+  Future<void> _loadRecentSearches() async {
+    final searches = await _recentSearchService.getRecentSearches();
+    if (mounted) {
+      setState(() {
+        _recentSearches = searches;
+      });
+    }
+  }
+
+  Future<void> _saveSearch(String searchText, bool isSuccess) async {
+    final search = RecentSearch(
+      searchText: searchText,
+      timestamp: DateTime.now(),
+      isSuccess: isSuccess,
+    );
+    await _recentSearchService.addRecentSearch(search);
+    await _loadRecentSearches();
+  }
 
   @override
   void dispose() {
@@ -40,7 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _body(BuildContext context) {
     final l10n = context.l10n;
     return Padding(
-      padding: const .all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           SearchBar(
@@ -49,48 +81,253 @@ class _SearchScreenState extends State<SearchScreen> {
               InkWell(
                 onTap: () {
                   if (_searchController.text.isNotEmpty) {
-                    context.read<CompoundDetailsBloc>().add(
-                      LoadCompoundDetails(compoundName: _searchController.text),
-                    );
+                    _performSearch(_searchController.text);
                   }
                 },
                 child: const Icon(Icons.search),
               ),
             ],
             hintText: l10n.searchForCompounds,
-            padding: .all(
-              const .only(left: 16, right: 16),
+            padding: WidgetStateProperty.all(
+              const EdgeInsets.only(left: 16, right: 16),
             ),
-            elevation: .all(0),
+            elevation: WidgetStateProperty.all(0),
             onSubmitted: (value) {
               if (value.isNotEmpty) {
-                context.read<CompoundDetailsBloc>().add(
-                  LoadCompoundDetails(compoundName: value),
-                );
+                _performSearch(value);
               }
             },
           ),
           const SizedBox(height: 16),
-          Expanded(
+          BlocListener<CompoundDetailsBloc, CompoundDetailsState>(
+            listener: (context, state) async {
+              await state.whenOrNull(
+                loaded: (compound) async {
+                  if (_currentSearchText != null) {
+                    await _saveSearch(_currentSearchText!, true);
+                    _currentSearchText = null;
+                  }
+                },
+                error: (message) async {
+                  if (_currentSearchText != null) {
+                    await _saveSearch(_currentSearchText!, false);
+                    _currentSearchText = null;
+                  }
+                },
+              );
+            },
             child: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
               builder: (context, state) {
-                return state.when(
-                  initial: () => const Center(
-                    child: Text(
-                      'Enter a compound name to search',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+                return Expanded(
+                  child: Column(
+                    children: [
+                      Flexible(
+                        child: state.when(
+                          initial: _buildEmptyState,
+                          loading: () => const SearchCompoundLoadingWidget(),
+                          loaded: _buildCompoundResult,
+                          error: _buildError,
+                        ),
                       ),
-                    ),
+                      _buildRecentSearchesSection(),
+                    ],
                   ),
-                  loading: () => const SearchCompoundLoadingWidget(),
-                  loaded: _buildCompoundResult,
-                  error: _buildError,
                 );
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  void _performSearch(String searchText) {
+    setState(() {
+      _currentSearchText = searchText;
+    });
+    context.read<CompoundDetailsBloc>().add(
+      LoadCompoundDetails(compoundName: searchText),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    if (_recentSearches.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search,
+              size: 64,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Enter a compound name to search',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildRecentSearchesSection() {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.history,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Recent Searches',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              if (_recentSearches.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () async {
+                    await _recentSearchService.clearRecentSearches();
+                    await _loadRecentSearches();
+                  },
+                  icon: const Icon(Icons.clear_all, size: 16),
+                  label: const Text('Clear'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_recentSearches.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  'No recent search found',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: ListView.separated(
+                itemCount: _recentSearches.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final search = _recentSearches[index];
+                  return Card(
+                    elevation: 0.5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        _searchController.text = search.searchText;
+                        _performSearch(search.searchText);
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: search.isSuccess
+                                    ? Colors.green.withOpacity(0.1)
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.error.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                search.isSuccess
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                color: search.isSuccess
+                                    ? Colors.green
+                                    : Theme.of(context).colorScheme.error,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    search.searchText,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    search.isSuccess
+                                        ? TimeAgoUtils.getTimeAgo(
+                                            search.timestamp,
+                                          )
+                                        : 'Not found',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: search.isSuccess
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -110,22 +347,22 @@ class _SearchScreenState extends State<SearchScreen> {
               );
             },
             child: Padding(
-              padding: const .all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Container(
-                    padding: const .all(5),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: .circular(12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: ClipRRect(
-                      borderRadius: .circular(8),
+                      borderRadius: BorderRadius.circular(8),
                       child: Image.network(
                         _getStructureSmallImageUrl(compoundCid: compound.cid),
                         height: 100,
                         width: 100,
-                        fit: .fill,
+                        fit: BoxFit.fill,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return const SizedBox(
@@ -153,13 +390,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _searchController.text,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
-                                fontWeight: .bold,
+                                fontWeight: FontWeight.bold,
                               ),
                         ),
                         if (compound.cid > 0) ...[
@@ -190,15 +427,15 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildError(String message) {
     final l10n = context.l10n;
     return Row(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Card(
           elevation: 0.5,
           child: Padding(
-            padding: const .all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisAlignment: .center,
-              mainAxisSize: .min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.error_outline,
@@ -209,7 +446,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Text(
                   l10n.compoundNotFound,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: .bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -217,7 +454,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   width: MediaQuery.sizeOf(context).width - 72,
                   child: Text(
                     _mapFailureToMessage(message),
-                    textAlign: .center,
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -238,8 +475,8 @@ class _SearchScreenState extends State<SearchScreen> {
     return imageUrl;
   }
 
-  String _mapFailureToMessage(failure) {
-    final failureMessage = failure.toString().toLowerCase();
+  String _mapFailureToMessage(String failure) {
+    final failureMessage = failure.toLowerCase();
     final l10n = context.l10n;
     if (failureMessage.contains('not found') ||
         failureMessage.contains('404') ||
