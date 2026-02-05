@@ -224,17 +224,22 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
               child: Image.network(
                 _getMolecularStructureUrl(compoundCid: cid),
                 width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
+                height: 250,
+                fit: BoxFit.fill,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const SizedBox(
-                    height: 200,
-                    child: Center(child: CircularProgressIndicator()),
+                    height: 250,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_outlined,
+                        size: 48,
+                      ),
+                    ),
                   );
                 },
                 errorBuilder: (context, error, stackTrace) => const SizedBox(
-                  height: 200,
+                  height: 250,
                   child: Center(child: Icon(Icons.broken_image, size: 48)),
                 ),
               ),
