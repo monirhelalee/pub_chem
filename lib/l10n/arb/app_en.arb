@@ -15,5 +15,9 @@
     "languageBengali": "বাংলা",
     "home": "Home",
     "searchForCompounds": "Search for compounds",
-    "featuredCompounds": "Featured Compounds"
+    "featuredCompounds": "Featured Compounds",
+    "compoundNotFound": "Compound Not Found",
+    "checkSpellingOrTryAnother": "Please check the spelling or try a different name.",
+    "netErrorTryAgain": "Network error. Please check your internet connection and try again.",
+     "serverErrorUnable":"Server error. PubChem service may be temporarily unavailable."
 }

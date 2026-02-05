@@ -54,7 +54,10 @@ class AppRouter {
         path: AppRoutes.search,
         name: 'search',
         builder: (BuildContext context, GoRouterState state) {
-          return const SearchScreen();
+          return BlocProvider(
+            create: (_) => sl<CompoundDetailsBloc>(),
+            child: const SearchScreen(),
+          );
         },
       ),
       GoRoute(
