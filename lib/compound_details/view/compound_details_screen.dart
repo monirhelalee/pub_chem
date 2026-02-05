@@ -4,6 +4,7 @@ import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart';
+import 'package:pub_chem/compound_details/view/widgets/compound_details_loading_widget.dart';
 
 class CompoundDetailsScreen extends StatefulWidget {
   const CompoundDetailsScreen({
@@ -36,9 +37,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
         builder: (context, state) {
           return state.when(
             initial: () => const SizedBox.shrink(),
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            loading: () => const CompoundDetailsLoadingWidget(),
             loaded: _buildCompoundDetails,
             error: _buildError,
           );
@@ -103,7 +102,6 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
           if (compound.name.isNotEmpty)
             _buildInfoCard(
               icon: Icons.drive_file_rename_outline_outlined,
@@ -136,20 +134,10 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             _buildInfoCard(
               icon: Icons.code,
               title: 'SMILES Notation',
-              content: compound.smiles ?? '',
+              content: compound.smiles,
             ),
           ],
 
-          // Description Card
-          if (compound.description != null &&
-              compound.description!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _buildInfoCard(
-              icon: Icons.description_outlined,
-              title: 'Description',
-              content: compound.description ?? '',
-            ),
-          ],
           const SizedBox(height: 12),
           _buildImageCard(
             icon: Icons.bubble_chart_outlined,
