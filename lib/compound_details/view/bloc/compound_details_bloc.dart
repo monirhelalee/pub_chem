@@ -21,9 +21,11 @@ class CompoundDetailsBloc
   ) async {
     emit(const CompoundDetailsState.loading());
     try {
-      final compound = await _repository.getCompoundDetails(loadEvent.compoundName);
+      final compound = await _repository.getCompoundDetails(
+        loadEvent.compoundName,
+      );
       emit(CompoundDetailsState.loaded(compound: compound));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         CompoundDetailsState.error(
           message: e.toString(),

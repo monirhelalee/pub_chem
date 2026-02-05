@@ -2,6 +2,7 @@ class Constants {
   Constants._();
 
   static const List<String> featuredCompounds = [
+    'Monir',
     'Aspirin',
     'Caffeine',
     'Glucose',

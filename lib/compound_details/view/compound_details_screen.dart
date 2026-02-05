@@ -278,7 +278,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              message,
+              'Please try again!',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
