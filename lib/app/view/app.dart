@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/router/app_router.dart';
+import 'package:pub_chem/app/view/locale/cubit/locale_cubit.dart';
 import 'package:pub_chem/app/view/theme/app_theme.dart';
 import 'package:pub_chem/app/view/theme/cubit/theme_cubit.dart';
 import 'package:pub_chem/app/view/theme/models/app_theme_mode.dart';
@@ -12,18 +13,31 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ThemeCubit>(
-      create: (_) => sl<ThemeCubit>(),
-      child: BlocBuilder<ThemeCubit, AppThemeMode>(
-        builder: (context, themeMode) {
-          final themeCubit = context.read<ThemeCubit>();
-          return MaterialApp.router(
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: themeCubit.getThemeMode(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            routerConfig: AppRouter.router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ThemeCubit>(
+          create: (_) => sl<ThemeCubit>(),
+        ),
+        BlocProvider<LocaleCubit>(
+          create: (_) => sl<LocaleCubit>(),
+        ),
+      ],
+      child: BlocBuilder<LocaleCubit, Locale>(
+        builder: (context, locale) {
+          return BlocBuilder<ThemeCubit, AppThemeMode>(
+            builder: (context, themeMode) {
+              final themeCubit = context.read<ThemeCubit>();
+              return MaterialApp.router(
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeCubit.getThemeMode(),
+                locale: locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                routerConfig: AppRouter.router,
+                debugShowCheckedModeBanner: false,
+              );
+            },
           );
         },
       ),

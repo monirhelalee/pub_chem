@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:pub_chem/app/network_service/api_client.dart';
+import 'package:pub_chem/app/view/locale/cubit/locale_cubit.dart';
 import 'package:pub_chem/app/view/theme/cubit/theme_cubit.dart';
 import 'package:pub_chem/compound_details/data/repositories/implementations/compound_details_impl.dart';
 import 'package:pub_chem/compound_details/data/repositories/sources/compound_details_source.dart';
@@ -25,5 +26,6 @@ Future<void> setupServiceLocator() async {
     ..registerFactory(CompoundDetailsBloc.new)
     ..registerLazySingleton<ApiClient>(ApiClient.new)
     ..registerSingleton<NavbarIndexCubit>(NavbarIndexCubit())
-    ..registerSingleton<ThemeCubit>(ThemeCubit());
+    ..registerSingleton<ThemeCubit>(ThemeCubit())
+    ..registerSingleton<LocaleCubit>(LocaleCubit());
 }

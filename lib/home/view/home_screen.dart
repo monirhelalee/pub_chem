@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
 import 'package:pub_chem/app/utils/constants.dart';
+import 'package:pub_chem/l10n/l10n.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const .only(left: 16, right: 16, top: 16),
@@ -16,7 +18,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             SearchBar(
               trailing: const [Icon(Icons.search)],
-              hintText: 'Search for compounds',
+              hintText: l10n.searchForCompounds,
               padding: .all(const .only(left: 16, right: 16)),
               elevation: .all(0),
               readOnly: true,
@@ -25,9 +27,9 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Featured Compounds',
-              style: TextStyle(
+            Text(
+              l10n.featuredCompounds,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),

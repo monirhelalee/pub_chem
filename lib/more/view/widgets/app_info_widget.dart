@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pub_chem/l10n/l10n.dart';
 
 class AppInfoWidget extends StatelessWidget {
   const AppInfoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       elevation: .5,
       child: Padding(
@@ -18,7 +20,7 @@ class AppInfoWidget extends StatelessWidget {
                 const Icon(Icons.info),
                 const SizedBox(width: 8),
                 Text(
-                  'App Info',
+                  l10n.appInfoTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
@@ -33,26 +35,26 @@ class AppInfoWidget extends StatelessWidget {
                     children: [
                       _buildInfoRow(
                         context: context,
-                        label: 'App Name',
+                        label: l10n.appNameLabel,
                         value: packageInfo.appName,
                       ),
                       const SizedBox(height: 8),
                       _buildInfoRow(
                         context: context,
-                        label: 'Version',
+                        label: l10n.versionLabel,
                         value: packageInfo.version,
                       ),
                       const SizedBox(height: 8),
                       _buildInfoRow(
                         context: context,
-                        label: 'Build Number',
+                        label: l10n.buildNumberLabel,
                         value: packageInfo.buildNumber,
                       ),
                     ],
                   );
                 } else if (snapshot.hasError) {
                   return Text(
-                    'Error loading app info: ${snapshot.error}',
+                    '${l10n.errorLoadingAppInfo} ${snapshot.error}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.error,
                     ),

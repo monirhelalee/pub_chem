@@ -1,7 +1,19 @@
 {
     "@@locale": "en",
-    "counterAppBarTitle": "Counter",
-    "@counterAppBarTitle": {
-        "description": "Text shown in the AppBar of the Counter Page"
-    }
+    "moreScreenTitle": "More",
+    "themeTitle": "Theme",
+    "appInfoTitle": "App Info",
+    "appNameLabel": "App Name",
+    "versionLabel": "Version",
+    "buildNumberLabel": "Build Number",
+    "errorLoadingAppInfo": "Error loading app info:",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "languageTitle": "Language",
+    "languageEnglish": "English",
+    "languageBengali": "বাংলা",
+    "home": "Home",
+    "searchForCompounds": "Search for compounds",
+    "featuredCompounds": "Featured Compounds"
 }

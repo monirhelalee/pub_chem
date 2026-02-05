@@ -1,7 +1,20 @@
 {
     "@@locale": "bn",
-    "counterAppBarTitle": "কাউন্টার",
-    "@counterAppBarTitle": {
-        "description": "কাউন্টার পৃষ্ঠার AppBar-এ প্রদর্শিত পাঠ্য"
-    }
+    "moreScreenTitle": "আরও",
+    "themeTitle": "থিম",
+    "appInfoTitle": "অ্যাপ তথ্য",
+    "appNameLabel": "অ্যাপের নাম",
+    "versionLabel": "সংস্করণ",
+    "buildNumberLabel": "বিল্ড নম্বর",
+    "errorLoadingAppInfo": "অ্যাপ তথ্য লোড করতে ত্রুটি:",
+    "themeLight": "লাইট",
+    "themeDark": "ডার্ক",
+    "themeSystem": "সিস্টেম",
+    "languageTitle": "ভাষা",
+    "languageEnglish": "English",
+    "languageBengali": "বাংলা",
+    "home": "হোম",
+    "searchForCompounds": "যৌগ অনুসন্ধান করুন",
+    "featuredCompounds": "ফিচার্ড যৌগ"
+
 }
