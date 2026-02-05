@@ -44,15 +44,16 @@ class HomeScreen extends StatelessWidget {
                 itemCount: Constants.featuredCompounds.length,
                 itemBuilder: (BuildContext context, int index) {
                   final compoundName = Constants.featuredCompounds[index];
-                  return InkWell(
-                    onTap: () async {
-                      await context.push(
-                        AppRoutes.compoundDetails,
-                        extra: compoundName,
-                      );
-                    },
-                    child: Card(
-                      elevation: 1,
+                  return Card(
+                    elevation: 1,
+                    child: InkWell(
+                      borderRadius: .circular(6),
+                      onTap: () async {
+                        await context.push(
+                          AppRoutes.compoundDetails,
+                          extra: compoundName,
+                        );
+                      },
                       child: Center(
                         child: Padding(
                           padding: const .all(8),
