@@ -53,8 +53,8 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card with Compound Name
           Card(
+            elevation: .5,
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -133,46 +133,10 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
           // SMILES Card
           if (compound.smiles.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.code,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'SMILES Notation',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: SelectableText(
-                        compound.smiles,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildInfoCard(
+              icon: Icons.code,
+              title: 'SMILES Notation',
+              content: compound.smiles ?? '',
             ),
           ],
 
@@ -180,38 +144,18 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
           if (compound.description != null &&
               compound.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.description_outlined,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Description',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      compound.description!,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
+            _buildInfoCard(
+              icon: Icons.description_outlined,
+              title: 'Description',
+              content: compound.description ?? '',
             ),
           ],
+          const SizedBox(height: 12),
+          _buildImageCard(
+            icon: Icons.bubble_chart_outlined,
+            title: 'Molecular Structure',
+            cid: compound.cid,
+          ),
 
           const SizedBox(height: 24),
         ],
@@ -225,33 +169,86 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
     required String content,
   }) {
     return Card(
+      elevation: .5,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              icon,
-              color: Theme.of(context).colorScheme.primary,
+            Row(
+              spacing: 8,
+              children: [
+                Icon(
+                  icon,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+            const SizedBox(height: 4),
+            Text(
+              content,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageCard({
+    required IconData icon,
+    required String title,
+    required int cid,
+  }) {
+    return Card(
+      elevation: .5,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 8,
+              children: [
+                Icon(
+                  icon,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    content,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                _getMolecularStructureUrl(compoundCid: cid),
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                  height: 200,
+                  child: Center(child: Icon(Icons.broken_image, size: 48)),
+                ),
               ),
             ),
           ],
@@ -301,5 +298,9 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
         ),
       ),
     );
+  }
+
+  String _getMolecularStructureUrl({required int compoundCid}) {
+    return 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/$compoundCid/PNG';
   }
 }
