@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pub_chem/app/config/env.dart';
+import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
@@ -294,6 +296,9 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
   }
 
   String _getMolecularStructureUrl({required int compoundCid}) {
-    return 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/$compoundCid/PNG';
+    var imageUrl = Env.value.baseUrl;
+    imageUrl += EndPoints.structureImage;
+    imageUrl += '$compoundCid/PNG';
+    return imageUrl;
   }
 }

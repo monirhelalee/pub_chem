@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pub_chem/app/network_service/end_points.dart';
+import 'package:pub_chem/app/config/env.dart';
 
 class ApiClient {
   ApiClient() {
     dio = Dio();
     dio.options = BaseOptions(
-      baseUrl: EndPoints.baseUrl,
+      baseUrl: Env.value.baseUrl,
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       contentType: 'application/json',
