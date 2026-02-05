@@ -12,17 +12,14 @@ import 'package:pub_chem/splash/view/bloc/splash_bloc.dart';
 final GetIt sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
-  // Data Sources
   sl
+    ..registerFactory(SplashBloc.new)
     ..registerLazySingleton<CompoundDetailsSource>(
       CompoundDetailsSourceImpl.new,
     )
-    // Repositories
     ..registerLazySingleton<CompoundDetailsRepository>(
       CompoundDetailsImpl.new,
     )
-    // Blocs
-    ..registerFactory(SplashBloc.new)
     ..registerFactory(CompoundDetailsBloc.new)
     ..registerLazySingleton<ApiClient>(ApiClient.new)
     ..registerSingleton<NavbarIndexCubit>(NavbarIndexCubit())

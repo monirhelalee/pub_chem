@@ -299,6 +299,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
     var imageUrl = Env.value.baseUrl;
     imageUrl += EndPoints.structureImage;
     imageUrl += '$compoundCid/PNG';
+    print(imageUrl);
     return imageUrl;
   }
 }
