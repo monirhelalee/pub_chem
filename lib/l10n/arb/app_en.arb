@@ -35,6 +35,11 @@
      "daysAgo" : "days ago",
      "hourAgo" : "hours ago",
      "hoursAgo" : "hours ago",
-     "justNow" : "Just now"
-
+     "justNow" : "Just now",
+     "compoundDetails" : "Compound Details",
+     "iUPACName" : "IUPAC Name",
+     "molecularFormula" : "Molecular Formula",
+     "molecularWeight" : "Molecular Weight",
+     "sMILESNotation" : "SMILES Notation",
+     "molecularStructure" : "Molecular Structure"
 }

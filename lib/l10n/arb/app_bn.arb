@@ -30,10 +30,16 @@
     "yearsAgo" : "বছর আগে",
     "notFound" : "খুঁজে পাওয়া যায়নি",
     "monthAgo" : "মাস আগে",
-     "monthsAgo" : "মাস আগে",
-     "dayAgo" : "দিন আগে",
-     "daysAgo" : "দিন আগে",
-     "hourAgo" : "ঘন্টা আগে",
-     "hoursAgo" : "ঘন্টা আগে",
-     "justNow" : "এই মুহূর্তে"
+    "monthsAgo" : "মাস আগে",
+    "dayAgo" : "দিন আগে",
+    "daysAgo" : "দিন আগে",
+    "hourAgo" : "ঘন্টা আগে",
+    "hoursAgo" : "ঘন্টা আগে",
+    "justNow" : "এই মুহূর্তে",
+    "compoundDetails" : "যৌগের বিবরণ",
+    "iUPACName" : "IUPAC নাম",
+    "molecularFormula" : "আণবিক সূত্র",
+    "molecularWeight" : "আণবিক ওজন",
+    "sMILESNotation" : "SMILES নোটেশন",
+    "molecularStructure" : "আণবিক কাঠামো"
 }

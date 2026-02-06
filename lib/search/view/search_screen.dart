@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pub_chem/app/config/env.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
-import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
+import 'package:pub_chem/app/utils/image_url_utils.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
@@ -278,7 +277,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: ClipRRect(
                       borderRadius: .circular(8),
                       child: Image.network(
-                        _getStructureSmallImageUrl(compoundCid: compound.cid),
+                        ImageUrlUtils.getStructureSmallImageUrl(
+                          compoundCid: compound.cid,
+                        ),
                         height: 100,
                         width: 100,
                         fit: BoxFit.fill,
@@ -341,12 +342,5 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ],
     );
-  }
-
-  String _getStructureSmallImageUrl({required int compoundCid}) {
-    var imageUrl = Env.value.baseUrl;
-    imageUrl += EndPoints.structureImage;
-    imageUrl += '$compoundCid/PNG?image_size=small';
-    return imageUrl;
   }
 }

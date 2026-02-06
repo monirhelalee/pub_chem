@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pub_chem/app/config/env.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
-import 'package:pub_chem/app/network_service/end_points.dart';
+import 'package:pub_chem/app/utils/image_url_utils.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart';
 import 'package:pub_chem/compound_details/view/widgets/compound_details_loading_widget.dart';
+import 'package:pub_chem/l10n/l10n.dart';
 
 class CompoundDetailsScreen extends StatefulWidget {
   const CompoundDetailsScreen({
@@ -34,9 +34,10 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Compound Details'),
+        title: Text(l10n.compoundDetails),
       ),
       body: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
         bloc: _compoundDetailsBloc,
@@ -53,6 +54,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
   }
 
   Widget _buildCompoundDetails(Compound compound) {
+    final l10n = context.l10n;
     return SingleChildScrollView(
       padding: const .all(16),
       child: Column(
@@ -111,7 +113,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
           if (compound.name.isNotEmpty)
             _buildInfoCard(
               icon: Icons.drive_file_rename_outline_outlined,
-              title: 'IUPAC Name',
+              title: l10n.iUPACName,
               content: compound.name,
             ),
           const SizedBox(height: 12),
@@ -120,7 +122,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
           if (compound.molecularFormula.isNotEmpty)
             _buildInfoCard(
               icon: Icons.functions,
-              title: 'Molecular Formula',
+              title: l10n.molecularFormula,
               content: compound.molecularFormula,
             ),
 
@@ -129,7 +131,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             const SizedBox(height: 12),
             _buildInfoCard(
               icon: Icons.scale,
-              title: 'Molecular Weight',
+              title: l10n.molecularWeight,
               content: '${compound.molecularWeight.toStringAsFixed(2)} g/mol',
             ),
           ],
@@ -139,7 +141,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             const SizedBox(height: 12),
             _buildInfoCard(
               icon: Icons.code,
-              title: 'SMILES Notation',
+              title: l10n.sMILESNotation,
               content: compound.smiles,
             ),
           ],
@@ -147,7 +149,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
           const SizedBox(height: 12),
           _buildImageCard(
             icon: Icons.bubble_chart_outlined,
-            title: 'Molecular Structure',
+            title: l10n.molecularStructure,
             cid: compound.cid,
           ),
 
@@ -228,7 +230,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             ClipRRect(
               borderRadius: .circular(8),
               child: Image.network(
-                _getMolecularStructureUrl(compoundCid: cid),
+                ImageUrlUtils.getMolecularStructureUrl(compoundCid: cid),
                 width: .infinity,
                 height: 250,
                 fit: .fill,
@@ -297,12 +299,5 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
         ),
       ),
     );
-  }
-
-  String _getMolecularStructureUrl({required int compoundCid}) {
-    var imageUrl = Env.value.baseUrl;
-    imageUrl += EndPoints.structureImage;
-    imageUrl += '$compoundCid/PNG';
-    return imageUrl;
   }
 }
