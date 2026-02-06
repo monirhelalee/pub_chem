@@ -33,7 +33,7 @@ class _NavbarViewState extends State<NavbarView> {
         builder: (context, state) {
           return BottomNavigationBar(
             currentIndex: state,
-            type: BottomNavigationBarType.fixed,
+            type: .fixed,
             onTap: (index) {
               sl<NavbarIndexCubit>().changeIndex(index);
             },

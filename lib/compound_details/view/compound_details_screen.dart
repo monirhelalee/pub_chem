@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pub_chem/app/config/env.dart';
+import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
@@ -21,12 +22,14 @@ class CompoundDetailsScreen extends StatefulWidget {
 }
 
 class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
+  late CompoundDetailsBloc _compoundDetailsBloc;
   @override
   void initState() {
     super.initState();
-    context.read<CompoundDetailsBloc>().add(
-      LoadCompoundDetailsEvent(compoundName: widget.compoundName),
-    );
+    _compoundDetailsBloc = sl<CompoundDetailsBloc>()
+      ..add(
+        LoadCompoundDetailsEvent(compoundName: widget.compoundName),
+      );
   }
 
   @override
@@ -36,6 +39,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
         title: const Text('Compound Details'),
       ),
       body: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
+        bloc: _compoundDetailsBloc,
         builder: (context, state) {
           return state.when(
             initial: () => const SizedBox.shrink(),
@@ -50,21 +54,21 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
 
   Widget _buildCompoundDetails(Compound compound) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const .all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
           Card(
             elevation: .5,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const .all(20),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const .all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: .circular(12),
                     ),
                     child: Icon(
                       Icons.science_outlined,
@@ -75,13 +79,13 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: .start,
                       children: [
                         Text(
                           widget.compoundName,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: .bold,
                               ),
                         ),
                         if (compound.cid > 0) ...[
@@ -161,9 +165,9 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
     return Card(
       elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             Row(
               spacing: 8,
@@ -184,7 +188,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             Text(
               content,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: .bold,
               ),
             ),
           ],
@@ -201,9 +205,9 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
     return Card(
       elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             Row(
               spacing: 8,
@@ -222,12 +226,12 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             ),
             const SizedBox(height: 4),
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: .circular(8),
               child: Image.network(
                 _getMolecularStructureUrl(compoundCid: cid),
-                width: double.infinity,
+                width: .infinity,
                 height: 250,
-                fit: BoxFit.fill,
+                fit: .fill,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const SizedBox(
@@ -255,9 +259,9 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
   Widget _buildError(String message) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const .all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             Icon(
               Icons.error_outline,
@@ -268,7 +272,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             Text(
               'Error Loading Compound',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: .bold,
               ),
             ),
             const SizedBox(height: 8),

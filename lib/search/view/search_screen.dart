@@ -5,7 +5,6 @@ import 'package:pub_chem/app/config/env.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
-import 'package:pub_chem/app/utils/time_ago_utils.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
@@ -16,7 +15,9 @@ import 'package:pub_chem/search/domain/entities/recent_search.dart';
 import 'package:pub_chem/search/view/bloc/recent_search_bloc.dart';
 import 'package:pub_chem/search/view/bloc/recent_search_event.dart';
 import 'package:pub_chem/search/view/bloc/recent_search_state.dart';
+import 'package:pub_chem/search/view/widgets/recent_search_list_tile_widget.dart';
 import 'package:pub_chem/search/view/widgets/search_compound_loading_widget.dart';
+import 'package:pub_chem/search/view/widgets/search_error_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -70,7 +71,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _body(BuildContext context) {
     final l10n = context.l10n;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const .all(16),
       child: Column(
         children: [
           Hero(
@@ -88,10 +89,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ],
               hintText: l10n.searchForCompounds,
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.only(left: 16, right: 16),
+              padding: .all(
+                const .only(left: 16, right: 16),
               ),
-              elevation: WidgetStateProperty.all(0),
+              elevation: .all(0),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
                   _performSearch(value);
@@ -125,7 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   initial: SizedBox.new,
                   loading: () => const SearchCompoundLoadingWidget(),
                   loaded: _buildCompoundResult,
-                  error: _buildError,
+                  error: (message) => SearchErrorWidget(message: message),
                 );
               },
             ),
@@ -156,11 +157,11 @@ class _SearchScreenState extends State<SearchScreen> {
           loading: () => const SearchCompoundLoadingWidget(),
           loaded: (value) => Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: .start,
               children: [
                 const Divider(height: 32),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: .spaceBetween,
                   children: [
                     Row(
                       children: [
@@ -174,7 +175,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           l10n.recentSearch,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: .bold,
                               ),
                         ),
                       ],
@@ -190,26 +191,19 @@ class _SearchScreenState extends State<SearchScreen> {
                         icon: const Icon(Icons.clear_all, size: 16),
                         label: Text(l10n.clear),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
+                          padding: const .symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          minimumSize: .zero,
+                          tapTargetSize: .shrinkWrap,
                         ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 if (value.isEmpty)
-                  Center(
-                    child: Text(
-                      l10n.noRecentSearchFound,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
+                  _recentSearchEmptyState()
                 else
                   Expanded(
                     child: ListView.separated(
@@ -218,97 +212,12 @@ class _SearchScreenState extends State<SearchScreen> {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final search = value[index];
-                        return Card(
-                          elevation: 0.5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              _searchController.text = search.searchText;
-                              _performSearch(search.searchText);
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: search.isSuccess
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.error.withOpacity(
-                                              0.1,
-                                            ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      search.isSuccess
-                                          ? Icons.check_circle
-                                          : Icons.cancel,
-                                      color: search.isSuccess
-                                          ? Colors.green
-                                          : Theme.of(context).colorScheme.error,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          search.searchText,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          search.isSuccess
-                                              ? TimeAgoUtils.getTimeAgo(
-                                                  search.timestamp,
-                                                  context,
-                                                )
-                                              : l10n.notFound,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: search.isSuccess
-                                                    ? Theme.of(
-                                                            context,
-                                                          )
-                                                          .colorScheme
-                                                          .onSurfaceVariant
-                                                    : Theme.of(
-                                                        context,
-                                                      ).colorScheme.error,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.search,
-                                    size: 16,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                        return RecentSearchListTileWidget(
+                          onTap: () {
+                            _searchController.text = search.searchText;
+                            _performSearch(search.searchText);
+                          },
+                          search: search,
                         );
                       },
                     ),
@@ -316,175 +225,36 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
           ),
-          error: _buildError,
+          error: (message) => SearchErrorWidget(message: message),
         );
-        // return Expanded(
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       const Divider(height: 32),
-        //       Row(
-        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //         children: [
-        //           Row(
-        //             children: [
-        //               Icon(
-        //                 Icons.history,
-        //                 color: Theme.of(context).colorScheme.primary,
-        //                 size: 20,
-        //               ),
-        //               const SizedBox(width: 8),
-        //               Text(
-        //                 l10n.recentSearch,
-        //                 style: Theme.of(context).textTheme.titleMedium
-        //                     ?.copyWith(
-        //                       fontWeight: FontWeight.bold,
-        //                     ),
-        //               ),
-        //             ],
-        //           ),
-        //           if (_recentSearches.isNotEmpty)
-        //             TextButton.icon(
-        //               onPressed: () async {
-        //                 await _recentSearchService.clearRecentSearches();
-        //                 sl<RecentSearchBloc>().add(
-        //                   const LoadRecentSearchEvent(),
-        //                 );
-        //               },
-        //               icon: const Icon(Icons.clear_all, size: 16),
-        //               label: Text(l10n.clear),
-        //               style: TextButton.styleFrom(
-        //                 padding: const EdgeInsets.symmetric(
-        //                   horizontal: 8,
-        //                   vertical: 4,
-        //                 ),
-        //                 minimumSize: Size.zero,
-        //                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        //               ),
-        //             ),
-        //         ],
-        //       ),
-        //       const SizedBox(height: 12),
-        //       if (_recentSearches.isEmpty)
-        //         Center(
-        //           child: Text(
-        //             l10n.noRecentSearchFound,
-        //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        //               color: Theme.of(context).colorScheme.onSurfaceVariant,
-        //             ),
-        //           ),
-        //         )
-        //       else
-        //         Expanded(
-        //           child: ListView.separated(
-        //             itemCount: _recentSearches.length,
-        //             separatorBuilder: (context, index) =>
-        //                 const SizedBox(height: 8),
-        //             itemBuilder: (context, index) {
-        //               final search = _recentSearches[index];
-        //               return Card(
-        //                 elevation: 0.5,
-        //                 shape: RoundedRectangleBorder(
-        //                   borderRadius: BorderRadius.circular(12),
-        //                 ),
-        //                 child: InkWell(
-        //                   onTap: () {
-        //                     _searchController.text = search.searchText;
-        //                     _performSearch(search.searchText);
-        //                   },
-        //                   borderRadius: BorderRadius.circular(12),
-        //                   child: Padding(
-        //                     padding: const EdgeInsets.all(16),
-        //                     child: Row(
-        //                       children: [
-        //                         Container(
-        //                           padding: const EdgeInsets.all(8),
-        //                           decoration: BoxDecoration(
-        //                             color: search.isSuccess
-        //                                 ? Colors.green.withOpacity(0.1)
-        //                                 : Theme.of(
-        //                                     context,
-        //                                   ).colorScheme.error.withOpacity(0.1),
-        //                             borderRadius: BorderRadius.circular(8),
-        //                           ),
-        //                           child: Icon(
-        //                             search.isSuccess
-        //                                 ? Icons.check_circle
-        //                                 : Icons.cancel,
-        //                             color: search.isSuccess
-        //                                 ? Colors.green
-        //                                 : Theme.of(context).colorScheme.error,
-        //                             size: 20,
-        //                           ),
-        //                         ),
-        //                         const SizedBox(width: 12),
-        //                         Expanded(
-        //                           child: Column(
-        //                             crossAxisAlignment:
-        //                                 CrossAxisAlignment.start,
-        //                             children: [
-        //                               Text(
-        //                                 search.searchText,
-        //                                 style: Theme.of(context)
-        //                                     .textTheme
-        //                                     .titleMedium
-        //                                     ?.copyWith(
-        //                                       fontWeight: FontWeight.w600,
-        //                                     ),
-        //                                 maxLines: 1,
-        //                                 overflow: TextOverflow.ellipsis,
-        //                               ),
-        //                               const SizedBox(height: 4),
-        //                               Text(
-        //                                 search.isSuccess
-        //                                     ? TimeAgoUtils.getTimeAgo(
-        //                                         search.timestamp,
-        //                                         context,
-        //                                       )
-        //                                     : l10n.notFound,
-        //                                 style: Theme.of(context)
-        //                                     .textTheme
-        //                                     .bodySmall
-        //                                     ?.copyWith(
-        //                                       color: search.isSuccess
-        //                                           ? Theme.of(
-        //                                                   context,
-        //                                                 )
-        //                                                 .colorScheme
-        //                                                 .onSurfaceVariant
-        //                                           : Theme.of(
-        //                                               context,
-        //                                             ).colorScheme.error,
-        //                                     ),
-        //                               ),
-        //                             ],
-        //                           ),
-        //                         ),
-        //                         Icon(
-        //                           Icons.search,
-        //                           size: 16,
-        //                           color: Theme.of(
-        //                             context,
-        //                           ).colorScheme.onSurfaceVariant,
-        //                         ),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //         ),
-        //     ],
-        //   ),
-        // );
       },
+    );
+  }
+
+  Widget _recentSearchEmptyState() {
+    final l10n = context.l10n;
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 24,
+          ),
+          Text(
+            l10n.noRecentSearchFound,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildCompoundResult(Compound compound) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .start,
       children: [
         Card(
           elevation: 0.5,
@@ -496,17 +266,17 @@ class _SearchScreenState extends State<SearchScreen> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const .all(16),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(5),
+                    padding: const .all(5),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: .circular(12),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: .circular(8),
                       child: Image.network(
                         _getStructureSmallImageUrl(compoundCid: compound.cid),
                         height: 100,
@@ -539,13 +309,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: .start,
                       children: [
                         Text(
                           _searchController.text,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: .bold,
                               ),
                         ),
                         if (compound.cid > 0) ...[
@@ -573,77 +343,10 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildError(String message) {
-    final l10n = context.l10n;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Card(
-          elevation: 0.5,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.compoundNotFound,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 72,
-                  child: Text(
-                    _mapFailureToMessage(message),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   String _getStructureSmallImageUrl({required int compoundCid}) {
     var imageUrl = Env.value.baseUrl;
     imageUrl += EndPoints.structureImage;
     imageUrl += '$compoundCid/PNG?image_size=small';
     return imageUrl;
-  }
-
-  String _mapFailureToMessage(String failure) {
-    final failureMessage = failure.toLowerCase();
-    final l10n = context.l10n;
-    if (failureMessage.contains('not found') ||
-        failureMessage.contains('404') ||
-        failureMessage.contains('no cid found')) {
-      return l10n.checkSpellingOrTryAnother;
-    } else if (failureMessage.contains('network') ||
-        failureMessage.contains('connection') ||
-        failureMessage.contains('timeout')) {
-      return l10n.netErrorTryAgain;
-    } else if (failureMessage.contains('server') ||
-        failureMessage.contains('500') ||
-        failureMessage.contains('503')) {
-      return l10n.serverErrorUnable;
-    } else if (failureMessage.contains('bad response') ||
-        failureMessage.contains('unexpected')) {
-      return l10n.serverErrorUnable;
-    } else {
-      return l10n.serverErrorUnable;
-    }
   }
 }

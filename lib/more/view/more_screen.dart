@@ -21,7 +21,7 @@ class MoreScreen extends StatelessWidget {
 
 Widget _body(BuildContext context) {
   return ListView(
-    padding: const EdgeInsets.all(16),
+    padding: const .all(16),
     children: const [
       LanguageWidget(),
       SizedBox(height: 16),

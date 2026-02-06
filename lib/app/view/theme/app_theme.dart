@@ -4,7 +4,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
+      colorScheme: .fromSeed(
         seedColor: Colors.blue,
       ),
       appBarTheme: const AppBarTheme(
@@ -14,7 +14,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: .circular(12),
         ),
       ),
     );
@@ -23,9 +23,9 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
+      colorScheme: .fromSeed(
         seedColor: Colors.blue,
-        brightness: Brightness.dark,
+        brightness: .dark,
       ),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
@@ -34,7 +34,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: .circular(12),
         ),
       ),
     );

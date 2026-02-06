@@ -12,9 +12,9 @@ class LanguageWidget extends StatelessWidget {
     return Card(
       elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             Row(
               children: [
@@ -36,10 +36,8 @@ class LanguageWidget extends StatelessWidget {
                     switch (locale.languageCode) {
                       case 'en':
                         languageName = l10n.languageEnglish;
-                        break;
                       case 'bn':
                         languageName = l10n.languageBengali;
-                        break;
                       default:
                         languageName = locale.languageCode.toUpperCase();
                     }

@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:pub_chem/l10n/l10n.dart';
 
 class TimeAgoUtils {
+  TimeAgoUtils._();
+
   static String getTimeAgo(DateTime dateTime, BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);

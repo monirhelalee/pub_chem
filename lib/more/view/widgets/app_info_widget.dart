@@ -11,9 +11,9 @@ class AppInfoWidget extends StatelessWidget {
     return Card(
       elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             Row(
               children: [
@@ -62,7 +62,7 @@ class AppInfoWidget extends StatelessWidget {
                 } else {
                   return const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: .all(16),
                       child: CircularProgressIndicator(),
                     ),
                   );
@@ -81,14 +81,14 @@ class AppInfoWidget extends StatelessWidget {
     required String value,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .start,
       children: [
         SizedBox(
           width: 120,
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
+              fontWeight: .w500,
             ),
           ),
         ),

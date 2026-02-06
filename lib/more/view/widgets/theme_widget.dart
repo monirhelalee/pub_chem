@@ -13,9 +13,9 @@ class ThemeWidget extends StatelessWidget {
     return Card(
       elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             Row(
               children: [
@@ -36,13 +36,10 @@ class ThemeWidget extends StatelessWidget {
                     switch (theme) {
                       case AppThemeMode.light:
                         themeLabel = l10n.themeLight;
-                        break;
                       case AppThemeMode.dark:
                         themeLabel = l10n.themeDark;
-                        break;
                       case AppThemeMode.system:
                         themeLabel = l10n.themeSystem;
-                        break;
                     }
                     return RadioListTile<AppThemeMode>(
                       title: Row(
