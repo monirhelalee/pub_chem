@@ -279,7 +279,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                             ),
                             Icon(
-                              Icons.arrow_forward_ios,
+                              Icons.search,
                               size: 16,
                               color: Theme.of(
                                 context,
