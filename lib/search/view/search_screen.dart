@@ -13,6 +13,9 @@ import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart'
 import 'package:pub_chem/l10n/l10n.dart';
 import 'package:pub_chem/search/data/services/recent_search_service.dart';
 import 'package:pub_chem/search/domain/entities/recent_search.dart';
+import 'package:pub_chem/search/view/bloc/recent_search_bloc.dart';
+import 'package:pub_chem/search/view/bloc/recent_search_event.dart';
+import 'package:pub_chem/search/view/bloc/recent_search_state.dart';
 import 'package:pub_chem/search/view/widgets/search_compound_loading_widget.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -25,23 +28,16 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final RecentSearchService _recentSearchService = sl<RecentSearchService>();
-  List<RecentSearch> _recentSearches = [];
   String? _currentSearchText;
   late CompoundDetailsBloc _compoundDetailsBloc;
+  late RecentSearchBloc _recentSearchBloc;
 
   @override
   void initState() {
     super.initState();
-    _loadRecentSearches();
-  }
-
-  Future<void> _loadRecentSearches() async {
-    final searches = await _recentSearchService.getRecentSearches();
-    if (mounted) {
-      setState(() {
-        _recentSearches = searches;
-      });
-    }
+    _compoundDetailsBloc = sl<CompoundDetailsBloc>();
+    _recentSearchBloc = sl<RecentSearchBloc>()
+      ..add(const LoadRecentSearchEvent());
   }
 
   Future<void> _saveSearch(String searchText, bool isSuccess) async {
@@ -51,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
       isSuccess: isSuccess,
     );
     await _recentSearchService.addRecentSearch(search);
-    await _loadRecentSearches();
+    _recentSearchBloc.add(const LoadRecentSearchEvent());
   }
 
   @override
@@ -152,156 +148,337 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildRecentSearchesSection() {
     final l10n = context.l10n;
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Divider(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.history,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.recentSearch,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              if (_recentSearches.isNotEmpty)
-                TextButton.icon(
-                  onPressed: () async {
-                    await _recentSearchService.clearRecentSearches();
-                    await _loadRecentSearches();
-                  },
-                  icon: const Icon(Icons.clear_all, size: 16),
-                  label: Text(l10n.clear),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (_recentSearches.isEmpty)
-            Center(
-              child: Text(
-                l10n.noRecentSearchFound,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: ListView.separated(
-                itemCount: _recentSearches.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final search = _recentSearches[index];
-                  return Card(
-                    elevation: 0.5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        _searchController.text = search.searchText;
-                        _performSearch(search.searchText);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: search.isSuccess
-                                    ? Colors.green.withOpacity(0.1)
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.error.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
+    return BlocBuilder<RecentSearchBloc, RecentSearchState>(
+      bloc: _recentSearchBloc,
+      builder: (context, state) {
+        return state.when(
+          initial: SizedBox.new,
+          loading: () => const SearchCompoundLoadingWidget(),
+          loaded: (value) => Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.history,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.recentSearch,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                              child: Icon(
-                                search.isSuccess
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                color: search.isSuccess
-                                    ? Colors.green
-                                    : Theme.of(context).colorScheme.error,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ],
+                    ),
+                    if (value.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: () async {
+                          await _recentSearchService.clearRecentSearches();
+                          _recentSearchBloc.add(
+                            const LoadRecentSearchEvent(),
+                          );
+                        },
+                        icon: const Icon(Icons.clear_all, size: 16),
+                        label: Text(l10n.clear),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (value.isEmpty)
+                  Center(
+                    child: Text(
+                      l10n.noRecentSearchFound,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: value.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final search = value[index];
+                        return Card(
+                          elevation: 0.5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              _searchController.text = search.searchText;
+                              _performSearch(search.searchText);
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
                                 children: [
-                                  Text(
-                                    search.searchText,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: search.isSuccess
+                                          ? Colors.green.withOpacity(0.1)
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.error.withOpacity(
+                                              0.1,
+                                            ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      search.isSuccess
+                                          ? Icons.check_circle
+                                          : Icons.cancel,
+                                      color: search.isSuccess
+                                          ? Colors.green
+                                          : Theme.of(context).colorScheme.error,
+                                      size: 20,
+                                    ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    search.isSuccess
-                                        ? TimeAgoUtils.getTimeAgo(
-                                            search.timestamp,
-                                            context,
-                                          )
-                                        : l10n.notFound,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: search.isSuccess
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          search.searchText,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          search.isSuccess
+                                              ? TimeAgoUtils.getTimeAgo(
+                                                  search.timestamp,
+                                                  context,
+                                                )
+                                              : l10n.notFound,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: search.isSuccess
+                                                    ? Theme.of(
+                                                            context,
+                                                          )
+                                                          .colorScheme
+                                                          .onSurfaceVariant
+                                                    : Theme.of(
+                                                        context,
+                                                      ).colorScheme.error,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.search,
+                                    size: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.search,
-                              size: 16,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
+                  ),
+              ],
             ),
-        ],
-      ),
+          ),
+          error: _buildError,
+        );
+        // return Expanded(
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       const Divider(height: 32),
+        //       Row(
+        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //         children: [
+        //           Row(
+        //             children: [
+        //               Icon(
+        //                 Icons.history,
+        //                 color: Theme.of(context).colorScheme.primary,
+        //                 size: 20,
+        //               ),
+        //               const SizedBox(width: 8),
+        //               Text(
+        //                 l10n.recentSearch,
+        //                 style: Theme.of(context).textTheme.titleMedium
+        //                     ?.copyWith(
+        //                       fontWeight: FontWeight.bold,
+        //                     ),
+        //               ),
+        //             ],
+        //           ),
+        //           if (_recentSearches.isNotEmpty)
+        //             TextButton.icon(
+        //               onPressed: () async {
+        //                 await _recentSearchService.clearRecentSearches();
+        //                 sl<RecentSearchBloc>().add(
+        //                   const LoadRecentSearchEvent(),
+        //                 );
+        //               },
+        //               icon: const Icon(Icons.clear_all, size: 16),
+        //               label: Text(l10n.clear),
+        //               style: TextButton.styleFrom(
+        //                 padding: const EdgeInsets.symmetric(
+        //                   horizontal: 8,
+        //                   vertical: 4,
+        //                 ),
+        //                 minimumSize: Size.zero,
+        //                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        //               ),
+        //             ),
+        //         ],
+        //       ),
+        //       const SizedBox(height: 12),
+        //       if (_recentSearches.isEmpty)
+        //         Center(
+        //           child: Text(
+        //             l10n.noRecentSearchFound,
+        //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        //               color: Theme.of(context).colorScheme.onSurfaceVariant,
+        //             ),
+        //           ),
+        //         )
+        //       else
+        //         Expanded(
+        //           child: ListView.separated(
+        //             itemCount: _recentSearches.length,
+        //             separatorBuilder: (context, index) =>
+        //                 const SizedBox(height: 8),
+        //             itemBuilder: (context, index) {
+        //               final search = _recentSearches[index];
+        //               return Card(
+        //                 elevation: 0.5,
+        //                 shape: RoundedRectangleBorder(
+        //                   borderRadius: BorderRadius.circular(12),
+        //                 ),
+        //                 child: InkWell(
+        //                   onTap: () {
+        //                     _searchController.text = search.searchText;
+        //                     _performSearch(search.searchText);
+        //                   },
+        //                   borderRadius: BorderRadius.circular(12),
+        //                   child: Padding(
+        //                     padding: const EdgeInsets.all(16),
+        //                     child: Row(
+        //                       children: [
+        //                         Container(
+        //                           padding: const EdgeInsets.all(8),
+        //                           decoration: BoxDecoration(
+        //                             color: search.isSuccess
+        //                                 ? Colors.green.withOpacity(0.1)
+        //                                 : Theme.of(
+        //                                     context,
+        //                                   ).colorScheme.error.withOpacity(0.1),
+        //                             borderRadius: BorderRadius.circular(8),
+        //                           ),
+        //                           child: Icon(
+        //                             search.isSuccess
+        //                                 ? Icons.check_circle
+        //                                 : Icons.cancel,
+        //                             color: search.isSuccess
+        //                                 ? Colors.green
+        //                                 : Theme.of(context).colorScheme.error,
+        //                             size: 20,
+        //                           ),
+        //                         ),
+        //                         const SizedBox(width: 12),
+        //                         Expanded(
+        //                           child: Column(
+        //                             crossAxisAlignment:
+        //                                 CrossAxisAlignment.start,
+        //                             children: [
+        //                               Text(
+        //                                 search.searchText,
+        //                                 style: Theme.of(context)
+        //                                     .textTheme
+        //                                     .titleMedium
+        //                                     ?.copyWith(
+        //                                       fontWeight: FontWeight.w600,
+        //                                     ),
+        //                                 maxLines: 1,
+        //                                 overflow: TextOverflow.ellipsis,
+        //                               ),
+        //                               const SizedBox(height: 4),
+        //                               Text(
+        //                                 search.isSuccess
+        //                                     ? TimeAgoUtils.getTimeAgo(
+        //                                         search.timestamp,
+        //                                         context,
+        //                                       )
+        //                                     : l10n.notFound,
+        //                                 style: Theme.of(context)
+        //                                     .textTheme
+        //                                     .bodySmall
+        //                                     ?.copyWith(
+        //                                       color: search.isSuccess
+        //                                           ? Theme.of(
+        //                                                   context,
+        //                                                 )
+        //                                                 .colorScheme
+        //                                                 .onSurfaceVariant
+        //                                           : Theme.of(
+        //                                               context,
+        //                                             ).colorScheme.error,
+        //                                     ),
+        //                               ),
+        //                             ],
+        //                           ),
+        //                         ),
+        //                         Icon(
+        //                           Icons.search,
+        //                           size: 16,
+        //                           color: Theme.of(
+        //                             context,
+        //                           ).colorScheme.onSurfaceVariant,
+        //                         ),
+        //                       ],
+        //                     ),
+        //                   ),
+        //                 ),
+        //               );
+        //             },
+        //           ),
+        //         ),
+        //     ],
+        //   ),
+        // );
+      },
     );
   }
 

@@ -7,7 +7,11 @@ import 'package:pub_chem/compound_details/data/repositories/sources/compound_det
 import 'package:pub_chem/compound_details/domain/repositories/compound_details_repository.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/navbar/cubit/navbar_index_cubit.dart';
+import 'package:pub_chem/search/data/repositories/implementations/recent_search_impl.dart';
+import 'package:pub_chem/search/data/repositories/sources/recent_search_source.dart';
 import 'package:pub_chem/search/data/services/recent_search_service.dart';
+import 'package:pub_chem/search/domain/repositories/recent_search_repository.dart';
+import 'package:pub_chem/search/view/bloc/recent_search_bloc.dart';
 import 'package:pub_chem/splash/view/bloc/splash_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -20,6 +24,13 @@ Future<void> setupServiceLocator() async {
     )
     ..registerLazySingleton<CompoundDetailsRepository>(
       CompoundDetailsImpl.new,
+    )
+    ..registerFactory<RecentSearchBloc>(RecentSearchBloc.new)
+    ..registerLazySingleton<RecentSearchSource>(
+      RecentSearchSourceImpl.new,
+    )
+    ..registerLazySingleton<RecentSearchRepository>(
+      RecentSearchImpl.new,
     )
     ..registerFactory<CompoundDetailsBloc>(CompoundDetailsBloc.new)
     ..registerLazySingleton<ApiClient>(ApiClient.new)

@@ -1,13 +1,14 @@
 import 'dart:convert';
 
+import 'package:pub_chem/search/data/model/recent_search_model.dart';
 import 'package:pub_chem/search/domain/entities/recent_search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecentSearchService {
   static const String _recentSearchesKey = 'recent_searches';
-  static const int _maxRecentSearches = 20;
+  static const int _maxRecentSearches = 50;
 
-  Future<List<RecentSearch>> getRecentSearches() async {
+  Future<List<RecentSearchModel>> getRecentSearches() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_recentSearchesKey);
@@ -22,9 +23,16 @@ class RecentSearchService {
       final jsonList = decoded;
       final searches =
           jsonList
-              .map((json) => _fromJson(json as Map<String, dynamic>))
+              .map(
+                (json) =>
+                    RecentSearchModel.fromJson(json as Map<String, dynamic>),
+              )
               .toList()
-            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+            ..sort(
+              (a, b) => DateTime.parse(
+                b.timestamp,
+              ).compareTo(DateTime.parse(a.timestamp)),
+            );
       return searches;
     } on Exception {
       return [];
@@ -35,12 +43,20 @@ class RecentSearchService {
     try {
       final searches = await getRecentSearches();
 
-      // Remove duplicate searches with the same text
-      searches.removeWhere(
-        (s) => s.searchText.toLowerCase() == search.searchText.toLowerCase(),
+      // Convert RecentSearch entity to RecentSearchModel
+      final searchModel = RecentSearchModel(
+        searchText: search.searchText,
+        timestamp: search.timestamp.toIso8601String(),
+        isSuccess: search.isSuccess,
       );
-      // Add new search at the beginning
-      searches.insert(0, search);
+
+      // Remove duplicate searches with the same text
+      searches
+        ..removeWhere(
+          (s) => s.searchText.toLowerCase() == search.searchText.toLowerCase(),
+        )
+        // Add new search at the beginning
+        ..insert(0, searchModel);
 
       // Keep only the most recent searches
       if (searches.length > _maxRecentSearches) {
@@ -48,7 +64,7 @@ class RecentSearchService {
       }
 
       final prefs = await SharedPreferences.getInstance();
-      final jsonList = searches.map(_toJson).toList();
+      final jsonList = searches.map((model) => model.toJson()).toList();
       await prefs.setString(_recentSearchesKey, json.encode(jsonList));
     } on Exception {
       // Silently fail if there's an error saving
@@ -62,21 +78,5 @@ class RecentSearchService {
     } on Exception {
       // Silently fail if there's an error clearing
     }
-  }
-
-  Map<String, dynamic> _toJson(RecentSearch search) {
-    return {
-      'searchText': search.searchText,
-      'timestamp': search.timestamp.toIso8601String(),
-      'isSuccess': search.isSuccess,
-    };
-  }
-
-  RecentSearch _fromJson(Map<String, dynamic> json) {
-    return RecentSearch(
-      searchText: json['searchText'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      isSuccess: json['isSuccess'] as bool,
-    );
   }
 }
