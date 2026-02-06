@@ -14,12 +14,26 @@
     "languageEnglish": "English",
     "languageBengali": "বাংলা",
     "home": "হোম",
+    "search": "অনুসন্ধান",
     "searchForCompounds": "যৌগ অনুসন্ধান করুন",
     "featuredCompounds": "ফিচার্ড যৌগ",
     "compoundNotFound": "যৌগ খুঁজে পাওয়া যায়নি",
     "checkSpellingOrTryAnother":"অনুগ্রহ করে বানান পরীক্ষা করুন অথবা অন্য একটি নাম চেষ্টা করুন।",
     "netErrorTryAgain":"নেটওয়ার্ক ত্রুটি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
-    "serverErrorUnable":"সার্ভার ত্রুটি। PubChem পরিষেবা সাময়িকভাবে অনুপলব্ধ হতে পারে।"
-
-
+    "serverErrorUnable":"সার্ভার ত্রুটি। PubChem পরিষেবা সাময়িকভাবে অনুপলব্ধ হতে পারে।",
+    "noRecentSearchFound":"সাম্প্রতিক কোন অনুসন্ধান পাওয়া যায়নি",
+    "recentSearch":"সাম্প্রতিক অনুসন্ধান",
+    "clear":"ক্লিয়ার",
+    "minutesAgo" : "মিনিট আগে",
+    "minuteAgo" : "মিনিট আগে",
+    "yearAgo" : "বছর আগে",
+    "yearsAgo" : "বছর আগে",
+    "notFound" : "খুঁজে পাওয়া যায়নি",
+    "monthAgo" : "মাস আগে",
+     "monthsAgo" : "মাস আগে",
+     "dayAgo" : "দিন আগে",
+     "daysAgo" : "দিন আগে",
+     "hourAgo" : "ঘন্টা আগে",
+     "hoursAgo" : "ঘন্টা আগে",
+     "justNow" : "এই মুহূর্তে"
 }

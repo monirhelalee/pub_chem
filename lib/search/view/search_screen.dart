@@ -5,6 +5,7 @@ import 'package:pub_chem/app/config/env.dart';
 import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/network_service/end_points.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
+import 'package:pub_chem/app/utils/time_ago_utils.dart';
 import 'package:pub_chem/compound_details/domain/entities/compound.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_bloc.dart';
 import 'package:pub_chem/compound_details/view/bloc/compound_details_event.dart';
@@ -12,7 +13,6 @@ import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart'
 import 'package:pub_chem/l10n/l10n.dart';
 import 'package:pub_chem/search/data/services/recent_search_service.dart';
 import 'package:pub_chem/search/domain/entities/recent_search.dart';
-import 'package:pub_chem/search/utils/time_ago_utils.dart';
 import 'package:pub_chem/search/view/widgets/search_compound_loading_widget.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -61,9 +61,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text(l10n.search),
       ),
       body: _body(context),
     );
@@ -118,24 +119,16 @@ class _SearchScreenState extends State<SearchScreen> {
             },
             child: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
               builder: (context, state) {
-                return Expanded(
-                  child: Column(
-                    children: [
-                      Flexible(
-                        child: state.when(
-                          initial: _buildEmptyState,
-                          loading: () => const SearchCompoundLoadingWidget(),
-                          loaded: _buildCompoundResult,
-                          error: _buildError,
-                        ),
-                      ),
-                      _buildRecentSearchesSection(),
-                    ],
-                  ),
+                return state.when(
+                  initial: SizedBox.new,
+                  loading: () => const SearchCompoundLoadingWidget(),
+                  loaded: _buildCompoundResult,
+                  error: _buildError,
                 );
               },
             ),
           ),
+          _buildRecentSearchesSection(),
         ],
       ),
     );
@@ -150,33 +143,8 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    if (_recentSearches.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search,
-              size: 64,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Enter a compound name to search',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
-
   Widget _buildRecentSearchesSection() {
+    final l10n = context.l10n;
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Recent Searches',
+                    l10n.recentSearch,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -208,7 +176,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     await _loadRecentSearches();
                   },
                   icon: const Icon(Icons.clear_all, size: 16),
-                  label: const Text('Clear'),
+                  label: Text(l10n.clear),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -222,13 +190,11 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           const SizedBox(height: 12),
           if (_recentSearches.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(
-                  'No recent search found',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+            Center(
+              child: Text(
+                l10n.noRecentSearchFound,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             )
@@ -295,11 +261,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                     search.isSuccess
                                         ? TimeAgoUtils.getTimeAgo(
                                             search.timestamp,
+                                            context,
                                           )
-                                        : 'Not found',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                        : l10n.notFound,
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           color: search.isSuccess
                                               ? Theme.of(
