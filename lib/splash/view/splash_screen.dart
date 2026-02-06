@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pub_chem/app/config/service_locator.dart';
 import 'package:pub_chem/app/router/app_routes.dart';
 import 'package:pub_chem/splash/view/bloc/splash_bloc.dart';
 import 'package:pub_chem/splash/view/bloc/splash_event.dart';
@@ -14,16 +15,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late SplashBloc _splashBloc;
+
   @override
   void initState() {
     super.initState();
-    context.read<SplashBloc>().add(SplashStarted());
+    _splashBloc = sl<SplashBloc>()..add(SplashInitEvent(showSplash: false));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<SplashBloc, SplashState>(
+        bloc: _splashBloc,
         listener: (context, state) {
           if (state is SplashFinished) {
             context.go(AppRoutes.navbar);

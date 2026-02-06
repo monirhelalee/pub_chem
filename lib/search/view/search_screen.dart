@@ -27,6 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final RecentSearchService _recentSearchService = sl<RecentSearchService>();
   List<RecentSearch> _recentSearches = [];
   String? _currentSearchText;
+  late CompoundDetailsBloc _compoundDetailsBloc;
 
   @override
   void initState() {
@@ -104,6 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           const SizedBox(height: 16),
           BlocListener<CompoundDetailsBloc, CompoundDetailsState>(
+            bloc: _compoundDetailsBloc,
             listener: (context, state) async {
               await state.whenOrNull(
                 loaded: (compound) async {
@@ -121,6 +123,7 @@ class _SearchScreenState extends State<SearchScreen> {
               );
             },
             child: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
+              bloc: _compoundDetailsBloc,
               builder: (context, state) {
                 return state.when(
                   initial: SizedBox.new,
@@ -141,9 +144,10 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       _currentSearchText = searchText;
     });
-    context.read<CompoundDetailsBloc>().add(
-      LoadCompoundDetails(compoundName: searchText),
-    );
+    _compoundDetailsBloc = sl<CompoundDetailsBloc>()
+      ..add(
+        LoadCompoundDetailsEvent(compoundName: searchText),
+      );
   }
 
   Widget _buildRecentSearchesSection() {

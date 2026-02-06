@@ -14,14 +14,14 @@ final GetIt sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
   sl
-    ..registerFactory(SplashBloc.new)
+    ..registerFactory<SplashBloc>(SplashBloc.new)
     ..registerLazySingleton<CompoundDetailsSource>(
       CompoundDetailsSourceImpl.new,
     )
     ..registerLazySingleton<CompoundDetailsRepository>(
       CompoundDetailsImpl.new,
     )
-    ..registerFactory(CompoundDetailsBloc.new)
+    ..registerFactory<CompoundDetailsBloc>(CompoundDetailsBloc.new)
     ..registerLazySingleton<ApiClient>(ApiClient.new)
     ..registerSingleton<NavbarIndexCubit>(NavbarIndexCubit())
     ..registerSingleton<ThemeCubit>(ThemeCubit())

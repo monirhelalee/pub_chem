@@ -2,8 +2,8 @@ abstract class CompoundDetailsEvent {
   const CompoundDetailsEvent();
 }
 
-class LoadCompoundDetails extends CompoundDetailsEvent {
-  const LoadCompoundDetails({required this.compoundName});
+class LoadCompoundDetailsEvent extends CompoundDetailsEvent {
+  const LoadCompoundDetailsEvent({required this.compoundName});
 
   final String compoundName;
 }

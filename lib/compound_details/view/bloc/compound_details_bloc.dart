@@ -6,31 +6,22 @@ import 'package:pub_chem/compound_details/view/bloc/compound_details_state.dart'
 
 class CompoundDetailsBloc
     extends Bloc<CompoundDetailsEvent, CompoundDetailsState> {
-  CompoundDetailsBloc({
-    CompoundDetailsRepository? repository,
-  }) : _repository = repository ?? sl<CompoundDetailsRepository>(),
-       super(const CompoundDetailsState.initial()) {
-    on<LoadCompoundDetails>(_onLoadCompoundDetails);
-  }
-
-  final CompoundDetailsRepository _repository;
-
-  Future<void> _onLoadCompoundDetails(
-    LoadCompoundDetails loadEvent,
-    Emitter<CompoundDetailsState> emit,
-  ) async {
-    emit(const CompoundDetailsState.loading());
-    try {
-      final compound = await _repository.getCompoundDetails(
-        loadEvent.compoundName,
-      );
-      emit(CompoundDetailsState.loaded(compound: compound));
-    } on Exception catch (e) {
-      emit(
-        CompoundDetailsState.error(
-          message: e.toString(),
-        ),
-      );
-    }
+  CompoundDetailsBloc() : super(const CompoundDetailsState.initial()) {
+    on<LoadCompoundDetailsEvent>((event, emit) async {
+      emit(const CompoundDetailsState.loading());
+      try {
+        final compound = await sl<CompoundDetailsRepository>()
+            .getCompoundDetails(
+              event.compoundName,
+            );
+        emit(CompoundDetailsState.loaded(compound: compound));
+      } on Exception catch (e) {
+        emit(
+          CompoundDetailsState.error(
+            message: e.toString(),
+          ),
+        );
+      }
+    });
   }
 }

@@ -25,7 +25,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
   void initState() {
     super.initState();
     context.read<CompoundDetailsBloc>().add(
-      LoadCompoundDetails(compoundName: widget.compoundName),
+      LoadCompoundDetailsEvent(compoundName: widget.compoundName),
     );
   }
 
@@ -283,7 +283,7 @@ class _CompoundDetailsScreenState extends State<CompoundDetailsScreen> {
             FilledButton.icon(
               onPressed: () {
                 context.read<CompoundDetailsBloc>().add(
-                  LoadCompoundDetails(compoundName: widget.compoundName),
+                  LoadCompoundDetailsEvent(compoundName: widget.compoundName),
                 );
               },
               icon: const Icon(Icons.refresh),
