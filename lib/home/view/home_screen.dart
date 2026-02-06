@@ -16,15 +16,18 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: .start,
           children: [
-            SearchBar(
-              trailing: const [Icon(Icons.search)],
-              hintText: l10n.searchForCompounds,
-              padding: .all(const .only(left: 16, right: 16)),
-              elevation: .all(0),
-              readOnly: true,
-              onTap: () async {
-                await context.push(AppRoutes.search);
-              },
+            Hero(
+              tag: 'search_bar',
+              child: SearchBar(
+                trailing: const [Icon(Icons.search)],
+                hintText: l10n.searchForCompounds,
+                padding: .all(const .only(left: 16, right: 16)),
+                elevation: .all(0),
+                readOnly: true,
+                onTap: () async {
+                  await context.push(AppRoutes.search);
+                },
+              ),
             ),
             const SizedBox(height: 16),
             Text(

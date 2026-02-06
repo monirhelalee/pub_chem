@@ -76,28 +76,31 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          SearchBar(
-            controller: _searchController,
-            trailing: [
-              InkWell(
-                onTap: () {
-                  if (_searchController.text.isNotEmpty) {
-                    _performSearch(_searchController.text);
-                  }
-                },
-                child: const Icon(Icons.search),
+          Hero(
+            tag: 'search_bar',
+            child: SearchBar(
+              controller: _searchController,
+              trailing: [
+                InkWell(
+                  onTap: () {
+                    if (_searchController.text.isNotEmpty) {
+                      _performSearch(_searchController.text);
+                    }
+                  },
+                  child: const Icon(Icons.search),
+                ),
+              ],
+              hintText: l10n.searchForCompounds,
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.only(left: 16, right: 16),
               ),
-            ],
-            hintText: l10n.searchForCompounds,
-            padding: WidgetStateProperty.all(
-              const EdgeInsets.only(left: 16, right: 16),
+              elevation: WidgetStateProperty.all(0),
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  _performSearch(value);
+                }
+              },
             ),
-            elevation: WidgetStateProperty.all(0),
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                _performSearch(value);
-              }
-            },
           ),
           const SizedBox(height: 16),
           BlocListener<CompoundDetailsBloc, CompoundDetailsState>(
