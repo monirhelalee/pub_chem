@@ -1,6 +1,7 @@
 # Pub Chem - Chemical Info System 🧪
 
 ---
+<img src="assets/app_icon.png" alt="app icon" width="100" height="100"/>
 
 ## App Overview
 
