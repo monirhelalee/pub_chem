@@ -113,3 +113,8 @@ flutter run --flavor production --target lib/main_production.dart
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | <img src="screenshots/splash.jpeg" alt="Splash Screen" width="175" height="450"/> | <img src="screenshots/error.jpeg" alt="Not Found State" width="175" height="450"/> | <img src="screenshots/more.jpeg" alt="More Screen" width="175" height="450"/> |
 
+---
+## ‍� Author
+
+**Monir Haider Helalee**
+- Portfolio: [monirdev.com](https://monirdev.com)
