@@ -15,6 +15,8 @@ class CompoundModel {
   factory CompoundModel.fromJson(Map<String, dynamic> json) =>
       _$CompoundModelFromJson(json);
 
+  Map<String, dynamic> toJson() => _$CompoundModelToJson(this);
+
   @JsonKey(name: 'PC_Compounds')
   List<PCCompound>? pcCompounds;
 
