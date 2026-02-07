@@ -18,17 +18,17 @@ class RecentSearchListTileWidget extends StatelessWidget {
     return Card(
       elevation: 0.5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: .circular(12),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: .circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const .all(16),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const .all(8),
                 decoration: BoxDecoration(
                   color: search.isSuccess
                       ? Colors.green.withOpacity(0.1)
@@ -37,7 +37,7 @@ class RecentSearchListTileWidget extends StatelessWidget {
                         ).colorScheme.error.withOpacity(
                           0.1,
                         ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: .circular(8),
                 ),
                 child: Icon(
                   search.isSuccess ? Icons.check_circle : Icons.cancel,
@@ -50,15 +50,15 @@ class RecentSearchListTileWidget extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: .start,
                   children: [
                     Text(
                       search.searchText,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: .w600,
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: .ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(

@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
             Text(
               l10n.featuredCompounds,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: .bold,
                 fontSize: 18,
               ),
             ),
