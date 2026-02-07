@@ -37,7 +37,10 @@ dev_dependencies:
   json_serializable: ^6.8.0
   very_good_analysis: ^10.0.0
 
-
 flutter:
   generate: true
   uses-material-design: true
+
+assets:
+  - assets/app_icon.png
+
