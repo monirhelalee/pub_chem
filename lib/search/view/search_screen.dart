@@ -50,6 +50,15 @@ class _SearchScreenState extends State<SearchScreen> {
     _recentSearchBloc.add(const LoadRecentSearchEvent());
   }
 
+  /// Saves search when state is already loaded/error on build (e.g. from cache).
+  /// BlocListener misses these because it only fires on state transitions.
+  void _saveSearchOnBuild(bool isSuccess) {
+    final searchText = _currentSearchText;
+    if (searchText == null) return;
+    _currentSearchText = null;
+    _saveSearch(searchText, isSuccess);
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -106,14 +115,16 @@ class _SearchScreenState extends State<SearchScreen> {
               await state.whenOrNull(
                 loaded: (compound) async {
                   if (_currentSearchText != null) {
-                    await _saveSearch(_currentSearchText!, true);
+                    final text = _currentSearchText!;
                     _currentSearchText = null;
+                    await _saveSearch(text, true);
                   }
                 },
                 error: (message) async {
                   if (_currentSearchText != null) {
-                    await _saveSearch(_currentSearchText!, false);
+                    final text = _currentSearchText!;
                     _currentSearchText = null;
+                    await _saveSearch(text, false);
                   }
                 },
               );
@@ -121,6 +132,20 @@ class _SearchScreenState extends State<SearchScreen> {
             child: BlocBuilder<CompoundDetailsBloc, CompoundDetailsState>(
               bloc: _compoundDetailsBloc,
               builder: (context, state) {
+                // When data loads from cache, state can be loaded before
+                // BlocListener attaches. Save search on build for those cases.
+                state.whenOrNull(
+                  loaded: (_) {
+                    if (_currentSearchText != null) {
+                      _saveSearchOnBuild(true);
+                    }
+                  },
+                  error: (_) {
+                    if (_currentSearchText != null) {
+                      _saveSearchOnBuild(false);
+                    }
+                  },
+                );
                 return state.when(
                   initial: SizedBox.new,
                   loading: () => const SearchCompoundLoadingWidget(),
